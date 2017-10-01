@@ -28,7 +28,6 @@ function init() {
       dst: term,
       width: Math.min(term.width),
       height: Math.min(term.height),
-      y: 2,
     });
 
     screenText = textBuffer.create({
@@ -42,12 +41,11 @@ function init() {
 }
 
 function fillScreen() {
-  screenText.setText(wordList[getRandomInt(0, wordList.length)]);
+  screenText.moveTo(0, getRandomInt(0, term.height));
+  screenText.insert(wordList[getRandomInt(0, wordList.length)]);
 
   screenText.draw({
-    blending: true,
-    delta: false,
-    noFill: true,
+    dst: screen,
   });
 
   screen.draw();
@@ -57,7 +55,7 @@ init();
 
 function animate() {
   fillScreen();
-  setTimeout(animate, 100);
+  setTimeout(animate, 1000);
 }
 
 animate();
