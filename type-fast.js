@@ -1,8 +1,8 @@
 const term = require('terminal-kit').terminal;
-
 const termkit = require('./node_modules/terminal-kit/lib/termkit.js');
 
 const screenBuffer = termkit.ScreenBuffer;
+const textBuffer = termkit.TextBuffer;
 
 const wordList = ['business', 'left', 'vague', 'shock', 'loaf', 'reply', 'bell',
   'dapper', 'escape', 'heavenly', 'abashed', 'fair', 'scandalous', 'needless',
@@ -11,11 +11,12 @@ const wordList = ['business', 'left', 'vague', 'shock', 'loaf', 'reply', 'bell',
   'daffy', 'square', 'highfalutin', 'spiky', 'entertain', 'attract', 'heat',
   'harsh', 'fumbling', 'jealous'];
 
+let screenText = {};
+let screen = {};
+
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - (min + 1))) + min;
 }
-
-const screen = {};
 
 function init() {
   termkit.getDetectedTerminal((error) => {
@@ -23,25 +24,40 @@ function init() {
       throw new Error('Cannot detect terminal!');
     }
 
-    screen.words = screenBuffer.create({
+    screen = screenBuffer.create({
       dst: term,
       width: Math.min(term.width),
-      height: Math.min(term.height - 1),
+      height: Math.min(term.height),
+      y: 2,
+    });
+
+    screenText = textBuffer.create({
+      dst: screen,
+      width: Math.min(term.width),
+      height: Math.min(term.height),
+      y: 2,
+      forceInBound: true,
     });
   });
 }
 
 function fillScreen() {
-  screen.words.put({
-    x: 0, // getRandomInt(0, term.width / 2),
-    y: getRandomInt(0, term.height - 10),
-  }, wordList[getRandomInt(0, wordList.length)]);
+  screenText.setText(wordList[getRandomInt(0, wordList.length)]);
 
-  screen.words.draw();
+  screenText.draw({
+    blending: true,
+    delta: false,
+    noFill: true,
+  });
+
+  screen.draw();
 }
 
 init();
 
-for (let i = 0; i < 10; i += 1) {
+function animate() {
   fillScreen();
+  setTimeout(animate, 100);
 }
+
+animate();
