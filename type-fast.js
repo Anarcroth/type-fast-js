@@ -42,7 +42,7 @@ function createTextBackground() {
 
   screenText.background.fill({
     attr: {
-      color: 'white',
+      color: 'white', bgColor: 'pink',
     },
   });
 
@@ -55,6 +55,7 @@ function terminate() {
 
   setTimeout(() => {
     term.moveTo(1, term.height, '\n\n');
+    term.clear();
     process.exit();
   }, 100);
 }
@@ -80,7 +81,7 @@ function init(callback) {
     viewport = screenBuffer.create({
       dst: term,
       width: Math.min(term.width),
-      height: Math.min(term.height - 1),
+      height: Math.min(term.height - 5),
       y: 2,
     });
 
@@ -97,7 +98,7 @@ function init(callback) {
 }
 
 function moveBackground() {
-  screenText.background.x += 1;
+  screenText.background.x += 0.3;
 }
 
 function draw() {
@@ -112,7 +113,7 @@ function draw() {
 function animate() {
   draw();
   moveBackground();
-  setTimeout(animate, 50);
+  setTimeout(animate, 10);
 }
 
 init(() => {
