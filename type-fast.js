@@ -2,7 +2,6 @@ const term = require('terminal-kit').terminal;
 const termkit = require('./node_modules/terminal-kit/lib/termkit.js');
 
 const screenBuffer = termkit.ScreenBuffer;
-const textBuffer = termkit.TextBuffer;
 
 const wordList = ['business', 'left', 'vague', 'shock', 'loaf', 'reply', 'bell',
   'dapper', 'escape', 'heavenly', 'abashed', 'fair', 'scandalous', 'needless',
@@ -20,11 +19,16 @@ function getRandomInt(min, max) {
 }
 
 function createTextBackground() {
-  screenText.background = textBuffer.create({
-    dst: viewport,
-    width: viewport.width * 4,
-    height: viewport.height,
+  screenText.background = screenBuffer.create({
+    width: term.width,
+    height: term.height,
     noFill: true,
+  });
+
+  screenText.background.fill({
+    attr: {
+      color: 'white', bgColor: 'blue',
+    },
   });
 }
 
@@ -58,8 +62,8 @@ function init(callback) {
 
     viewport = screenBuffer.create({
       dst: term,
-      width: Math.min(term.width),
-      height: Math.min(term.height - 1),
+      width: term.width,
+      height: term.height - 1,
     });
 
     createTextBackground();
@@ -74,33 +78,25 @@ function init(callback) {
   });
 }
 
-let negativeX = 0;
-
-function moveBackground() {
-  screenText.background.x += 1;
-
-  negativeX -= 1;
-}
-
 function draw() {
-  screenText.background.moveTo(negativeX, getRandomInt(0, term.height));
-
-  screenText.background.insert(wordList[getRandomInt(0, wordList.length)]);
+  screenText.background.x += 1;
 
   screenText.background.draw({
     dst: viewport,
-    x: 0,
-    blending: true,
     tile: true,
   });
+
+  screenText.background.put({
+    x: 0,
+    y: getRandomInt(0, term.height),
+  }, wordList[getRandomInt(0, wordList.length)]);
 
   viewport.draw();
 }
 
 function animate() {
   draw();
-  moveBackground();
-  setTimeout(animate, 1000);
+  setTimeout(animate, 500);
 }
 
 init(() => {
