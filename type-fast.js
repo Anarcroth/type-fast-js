@@ -18,18 +18,35 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - (min + 1))) + min;
 }
 
+function addWords() {
+  let wordAtX;
+  let wordAtY;
+
+  for (let i = 0; i < wordList.length; i += 1) {
+    wordAtX = Math.floor(Math.random() * screenText.background.width);
+    wordAtY = Math.floor(Math.random() * screenText.background.height);
+
+    screenText.background.put({
+      x: wordAtX,
+      y: wordAtY,
+    }, wordList[getRandomInt(0, wordList.length)]);
+  }
+}
+
 function createTextBackground() {
   screenText.background = screenBuffer.create({
-    width: term.width,
-    height: term.height,
+    width: viewport.width,
+    height: viewport.height,
     noFill: true,
   });
 
   screenText.background.fill({
     attr: {
-      color: 'white', bgColor: 'blue',
+      color: 'white',
     },
   });
+
+  addWords();
 }
 
 function terminate() {
@@ -62,8 +79,9 @@ function init(callback) {
 
     viewport = screenBuffer.create({
       dst: term,
-      width: term.width,
-      height: term.height - 1,
+      width: Math.min(term.width),
+      height: Math.min(term.height - 1),
+      y: 2,
     });
 
     createTextBackground();
@@ -78,25 +96,23 @@ function init(callback) {
   });
 }
 
-function draw() {
+function moveBackground() {
   screenText.background.x += 1;
+}
 
+function draw() {
   screenText.background.draw({
     dst: viewport,
     tile: true,
   });
-
-  screenText.background.put({
-    x: 0,
-    y: getRandomInt(0, term.height),
-  }, wordList[getRandomInt(0, wordList.length)]);
 
   viewport.draw();
 }
 
 function animate() {
   draw();
-  setTimeout(animate, 500);
+  moveBackground();
+  setTimeout(animate, 50);
 }
 
 init(() => {
