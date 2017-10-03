@@ -23,7 +23,7 @@ function addWords() {
   let wordAtY;
 
   for (let i = 0; i < wordList.length; i += 1) {
-    wordAtX = Math.floor(Math.random() * screenText.background.width);
+    wordAtX = getRandomInt(500, 816);
     wordAtY = Math.floor(Math.random() * screenText.background.height);
 
     screenText.background.put({
@@ -80,14 +80,14 @@ function init(callback) {
 
     viewport = screenBuffer.create({
       dst: term,
-      width: Math.min(term.width),
+      width: Math.min(term.width) * 4,
       height: Math.min(term.height - 5),
       y: 2,
     });
 
     createTextBackground();
 
-    term.moveTo.eraseLine.bgWhite.blue(term.width - 50, term.height, 'Type here and type fast!');
+    term.moveTo.eraseLine.bgWhite.blue(0, term.height, 'Type here and type fast!');
 
     term.hideCursor();
     term.grabInput();
@@ -98,7 +98,7 @@ function init(callback) {
 }
 
 function moveBackground() {
-  screenText.background.x += 0.3;
+  screenText.background.x -= 3;
 }
 
 function draw() {
