@@ -14,6 +14,8 @@ const screenText = {};
 
 let viewport = {};
 
+let userInput = '';
+
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - (min + 1))) + min;
 }
@@ -23,7 +25,7 @@ function addWords() {
   let wordAtY;
 
   for (let i = 0; i < wordList.length; i += 1) {
-    wordAtX = getRandomInt(500, 816);
+    wordAtX = getRandomInt(350, 816);
     wordAtY = Math.floor(Math.random() * screenText.background.height);
 
     screenText.background.put({
@@ -60,14 +62,27 @@ function terminate() {
   }, 100);
 }
 
+function checkForHit(playerWord) {
+  for (let i = 0; i < wordList.length; i += 1) {
+    if (playerWord === wordList[i]) {
+      process.exit();
+    }
+  }
+}
+
 function input(key) {
   switch (key) {
-    case 'q':
+    case 'BACKSPACE':
+      term.left(1).delete(1);
+      userInput = userInput.slice(0, userInput.length - 1);
+      break;
     case 'CTRL_C':
       terminate();
       break;
-
     default:
+      userInput += key;
+      term.red(userInput);
+      checkForHit(userInput);
       break;
   }
 }
@@ -89,16 +104,6 @@ function init(callback) {
 
     term.moveTo.eraseLine.bgWhite.blue(0, term.height + 5, 'Type here and type fast!');
 
-    term.moveTo(25, term.height + 5);
-
-    term.inputField({
-      echo: true,
-    }, (error2, userInput) => {
-      if (userInput === wordList.find(input)) {
-        term.blue('Good Job!');
-      }
-    });
-
     term.hideCursor();
     term.grabInput();
     term.on('key', input);
@@ -108,7 +113,7 @@ function init(callback) {
 }
 
 function moveBackground() {
-  screenText.background.x -= 1;
+  screenText.background.x -= 0.51;
 }
 
 function draw() {
