@@ -87,7 +87,17 @@ function init(callback) {
 
     createTextBackground();
 
-    term.moveTo.eraseLine.bgWhite.blue(0, term.height, 'Type here and type fast!');
+    term.moveTo.eraseLine.bgWhite.blue(0, term.height + 5, 'Type here and type fast!');
+
+    term.moveTo(25, term.height + 5);
+
+    term.inputField({
+      echo: true,
+    }, (error2, userInput) => {
+      if (userInput === wordList.find(input)) {
+        term.blue('Good Job!');
+      }
+    });
 
     term.hideCursor();
     term.grabInput();
