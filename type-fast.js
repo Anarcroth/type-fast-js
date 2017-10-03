@@ -108,7 +108,7 @@ function init(callback) {
 }
 
 function moveBackground() {
-  screenText.background.x -= 0.3;
+  screenText.background.x -= 1;
 }
 
 function draw() {
