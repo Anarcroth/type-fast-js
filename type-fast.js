@@ -25,7 +25,7 @@ function addWords() {
   let wordAtY;
 
   for (let i = 0; i < wordList.length; i += 1) {
-    wordAtX = getRandomInt(350, 816);
+    wordAtX = getRandomInt(250, 816);
     wordAtY = Math.floor(Math.random() * screenText.background.height);
 
     screenText.background.put({
@@ -65,7 +65,8 @@ function terminate() {
 function checkForHit(playerWord) {
   for (let i = 0; i < wordList.length; i += 1) {
     if (playerWord === wordList[i]) {
-      process.exit();
+      term.nextLine(2).red('Good job');
+      userInput = '';
     }
   }
 }
@@ -73,16 +74,18 @@ function checkForHit(playerWord) {
 function input(key) {
   switch (key) {
     case 'BACKSPACE':
-      term.left(1).delete(1);
+      term.nextLine(1).right(userInput.length - 1).red(' ');//left(1).delete(1);
       userInput = userInput.slice(0, userInput.length - 1);
       break;
     case 'CTRL_C':
       terminate();
       break;
+    case ' ':
+      checkForHit(userInput);
+      break;
     default:
       userInput += key;
       term.red(userInput);
-      checkForHit(userInput);
       break;
   }
 }
@@ -113,7 +116,7 @@ function init(callback) {
 }
 
 function moveBackground() {
-  screenText.background.x -= 0.51;
+  screenText.background.x -= 0.31;
 }
 
 function draw() {
