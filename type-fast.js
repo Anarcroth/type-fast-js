@@ -9,12 +9,14 @@ const wordList = ['business', 'left', 'vague', 'shock', 'loaf', 'reply', 'bell',
   'board', 'race', 'breath', 'minute', 'deer', 'draconian', 'next', 'perform',
   'daffy', 'square', 'highfalutin', 'spiky', 'entertain', 'attract', 'heat',
   'harsh', 'fumbling', 'jealous'];
-
+const encouragement = ['Good!', 'Nice!', 'Doing great!', 'Awesome!', 'Keep it up!'];
+const wordsYPosition = [];
 const screenText = {};
 
 let viewport = {};
 
 let userInput = '';
+
 
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - (min + 1))) + min;
@@ -32,6 +34,8 @@ function addWords() {
       x: wordAtX,
       y: wordAtY,
     }, wordList[getRandomInt(0, wordList.length)]);
+
+    wordsYPosition.push(wordAtY);
   }
 }
 
@@ -61,12 +65,23 @@ function terminate() {
     process.exit();
   }, 100);
 }
+let tempWord = '';
 
 function checkForHit(playerWord) {
-  for (let i = 0; i < wordList.length; i += 1) {
-    if (playerWord === wordList[i]) {
-      term.nextLine(2).red('Good job');
-      userInput = '';
+  for (let j = 0; j < wordsYPosition.length; j += 1) {
+    for (let i = 0; i < viewport.width; i += 1) {
+      for (let z = 0; z < playerWord.length; z += 1) {
+        if (screenText.background.get({ x: i + z, y: j }) !== null &&
+            screenText.background.get({ x: i + z, y: j }) !== ' ') {
+          tempWord += screenText.background.get({ x: i + z, y: j }).char;
+        }
+      }
+
+      if (playerWord === tempWord) {
+        term.nextLine(1).eraseLine();
+        term.nextLine(1).red(`${encouragement[getRandomInt(0, encouragement.length)]}`).eraseLineAfter();
+        userInput = '';
+      }
     }
   }
 }
@@ -74,12 +89,16 @@ function checkForHit(playerWord) {
 function input(key) {
   switch (key) {
     case 'BACKSPACE':
-      term.nextLine(1).right(userInput.length - 1).red(' ');//left(1).delete(1);
+      term.nextLine(1).right(userInput.length - 1).red(' ');
+      if (userInput.length === 1) {
+        term.left(2).red(' ');
+      }
       userInput = userInput.slice(0, userInput.length - 1);
       break;
     case 'CTRL_C':
       terminate();
       break;
+    case 'ENTER':
     case ' ':
       checkForHit(userInput);
       break;
@@ -116,7 +135,7 @@ function init(callback) {
 }
 
 function moveBackground() {
-  screenText.background.x -= 0.31;
+  screenText.background.x -= 0.2;
 }
 
 function draw() {
