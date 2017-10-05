@@ -48,7 +48,7 @@ function createTextBackground() {
 
   screenText.background.fill({
     attr: {
-      color: 'white', bgColor: 'pink',
+      color: 'white',
     },
   });
 
@@ -81,7 +81,18 @@ function checkForHit(playerWord) {
         term.nextLine(1).eraseLine();
         term.nextLine(1).red(`${encouragement[getRandomInt(0, encouragement.length)]}`).eraseLineAfter();
         userInput = '';
+        for (let z = 0; z < playerWord.length; z += 1) {
+          delete screenText.background.get({ x: i + z, y: j });
+          screenText.background.put({
+            x: i + z,
+            y: j,
+          }, ' ');
+        }
+
+        break;
       }
+
+      tempWord = '';
     }
   }
 }
@@ -135,7 +146,7 @@ function init(callback) {
 }
 
 function moveBackground() {
-  screenText.background.x -= 0.2;
+  screenText.background.x -= 0.09;
 }
 
 function draw() {
