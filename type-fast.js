@@ -48,7 +48,7 @@ function createTextBackground() {
 
   screenText.background.fill({
     attr: {
-      color: 'white',
+      color: 'white', bgDefaultColor: true,
     },
   });
 
@@ -79,7 +79,7 @@ function checkForHit(playerWord) {
 
       if (playerWord === tempWord) {
         term.nextLine(1).eraseLine();
-        term.nextLine(1).red(`${encouragement[getRandomInt(0, encouragement.length)]}`).eraseLineAfter();
+        term.nextLine(1).cyan(`${encouragement[getRandomInt(0, encouragement.length)]}`).eraseLineAfter();
         userInput = '';
         for (let z = 0; z < playerWord.length; z += 1) {
           delete screenText.background.get({ x: i + z, y: j });
@@ -88,7 +88,6 @@ function checkForHit(playerWord) {
             y: j,
           }, ' ');
         }
-
         break;
       }
 
@@ -100,9 +99,9 @@ function checkForHit(playerWord) {
 function input(key) {
   switch (key) {
     case 'BACKSPACE':
-      term.nextLine(1).right(userInput.length - 1).red(' ');
+      term.nextLine(1).right(userInput.length - 1).cyan(' ');
       if (userInput.length === 1) {
-        term.left(2).red(' ');
+        term.left(2).cyan(' ');
       }
       userInput = userInput.slice(0, userInput.length - 1);
       break;
@@ -115,7 +114,7 @@ function input(key) {
       break;
     default:
       userInput += key;
-      term.red(userInput);
+      term.cyan(userInput);
       break;
   }
 }
@@ -135,7 +134,7 @@ function init(callback) {
 
     createTextBackground();
 
-    term.moveTo.eraseLine.bgWhite.blue(0, term.height + 5, 'Type here and type fast!');
+    term.moveTo.eraseLine.bgWhite.cyan(0, term.height + 5, 'Type here and type fast!');
 
     term.hideCursor();
     term.grabInput();
