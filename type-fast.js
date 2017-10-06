@@ -1,22 +1,37 @@
+const fs = require('fs');
+
 const term = require('terminal-kit').terminal;
+
 const termkit = require('./node_modules/terminal-kit/lib/termkit.js');
 
 const screenBuffer = termkit.ScreenBuffer;
 
-const wordList = ['business', 'left', 'vague', 'shock', 'loaf', 'reply', 'bell',
-  'dapper', 'escape', 'heavenly', 'abashed', 'fair', 'scandalous', 'needless',
-  'momentous', 'puffy', 'wave', 'vanish', 'bath', 'hospitable', 'humor', 'crack',
-  'board', 'race', 'breath', 'minute', 'deer', 'draconian', 'next', 'perform',
-  'daffy', 'square', 'highfalutin', 'spiky', 'entertain', 'attract', 'heat',
-  'harsh', 'fumbling', 'jealous'];
+const wordList = fs.readFileSync('wordList.txt').toString().split('\n');
+
 const encouragement = ['Good!', 'Nice!', 'Doing great!', 'Awesome!', 'Keep it up!'];
+
 const wordsYPosition = [];
+
 const screenText = {};
+
+let user = {};
+
+Object.defineProperties({
+  user
+  {
+      name:,
+      currentScore:,
+      bestScore:,
+      currentNumHits:,
+      bestNumHits:
+  }
+})
 
 let viewport = {};
 
 let userInput = '';
 
+let tempWord = '';
 
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - (min + 1))) + min;
@@ -33,7 +48,7 @@ function addWords() {
     screenText.background.put({
       x: wordAtX,
       y: wordAtY,
-    }, wordList[getRandomInt(0, wordList.length)]);
+    }, wordList[i]);
 
     wordsYPosition.push(wordAtY);
   }
@@ -65,7 +80,6 @@ function terminate() {
     process.exit();
   }, 100);
 }
-let tempWord = '';
 
 function checkForHit(playerWord) {
   for (let j = 0; j < wordsYPosition.length; j += 1) {
@@ -77,10 +91,11 @@ function checkForHit(playerWord) {
         }
       }
 
-      if (playerWord === tempWord) {
+      if (playerWord === tempWord && playerWord.length === tempWord.length) {
         term.nextLine(1).eraseLine();
-        term.nextLine(1).cyan(`${encouragement[getRandomInt(0, encouragement.length)]}`).eraseLineAfter();
+        term.nextLine(2).cyan(`${encouragement[getRandomInt(0, encouragement.length)]}`).eraseLineAfter();
         userInput = '';
+
         for (let z = 0; z < playerWord.length; z += 1) {
           delete screenText.background.get({ x: i + z, y: j });
           screenText.background.put({
@@ -100,20 +115,28 @@ function input(key) {
   switch (key) {
     case 'BACKSPACE':
       term.nextLine(1).right(userInput.length - 1).cyan(' ');
+
       if (userInput.length === 1) {
         term.left(2).cyan(' ');
       }
+
       userInput = userInput.slice(0, userInput.length - 1);
       break;
+
     case 'CTRL_C':
       terminate();
       break;
+
     case 'ENTER':
     case ' ':
-      checkForHit(userInput);
+      if (userInput.length > 1) {
+        checkForHit(userInput);
+      }
       break;
+
     default:
       userInput += key;
+
       term.cyan(userInput);
       break;
   }
@@ -134,7 +157,7 @@ function init(callback) {
 
     createTextBackground();
 
-    term.moveTo.eraseLine.bgWhite.cyan(0, term.height + 5, 'Type here and type fast!');
+    term.moveTo.eraseLine.bgWhite.cyan(0, term.height, 'Type here and type fast!');
 
     term.hideCursor();
     term.grabInput();
@@ -145,7 +168,7 @@ function init(callback) {
 }
 
 function moveBackground() {
-  screenText.background.x -= 0.09;
+  screenText.background.x -= 0.03;
 }
 
 function draw() {
