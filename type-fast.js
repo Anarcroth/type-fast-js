@@ -1,10 +1,14 @@
 const fs = require('fs');
 
-const term = require('terminal-kit').terminal;
+const termkit = require('terminal-kit');
 
-const termkit = require('./node_modules/terminal-kit/lib/termkit.js');
+const term = termkit.terminal;
 
 const screenBuffer = termkit.ScreenBuffer;
+
+const Player = require('./player.js');
+
+const playersData = require('./playersData.json');
 
 const wordList = fs.readFileSync('wordList.txt').toString().split('\n');
 
@@ -14,18 +18,7 @@ const wordsYPosition = [];
 
 const screenText = {};
 
-let user = {};
-
-Object.defineProperties({
-  user
-  {
-      name:,
-      currentScore:,
-      bestScore:,
-      currentNumHits:,
-      bestNumHits:
-  }
-})
+let player1 = {};
 
 let viewport = {};
 
@@ -33,11 +26,22 @@ let userInput = '';
 
 let tempWord = '';
 
+function loadPlayer(players, currentPlayerName) {
+  for (let j = 0; j < players.data.length; j += 1) {
+    const values = Object.values(players.data[j]);
+    for (let i = 0; i < values.length; i += 1) {
+      if (values[i] === currentPlayerName) {
+        player1 = new Player(players.data[i]);
+      }
+    }
+  }
+}
+
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - (min + 1))) + min;
 }
 
-function addWords() {
+function addWordsToScreen() {
   let wordAtX;
   let wordAtY;
 
@@ -66,8 +70,6 @@ function createTextBackground() {
       color: 'white', bgDefaultColor: true,
     },
   });
-
-  addWords();
 }
 
 function terminate() {
@@ -93,6 +95,7 @@ function checkForHit(playerWord) {
 
       if (playerWord === tempWord && playerWord.length === tempWord.length) {
         term.nextLine(1).eraseLine();
+        term.red(player1.get());
         term.nextLine(2).cyan(`${encouragement[getRandomInt(0, encouragement.length)]}`).eraseLineAfter();
         userInput = '';
 
@@ -143,6 +146,8 @@ function input(key) {
 }
 
 function init(callback) {
+  loadPlayer(playersData, 'Martin');
+
   termkit.getDetectedTerminal((error) => {
     if (error) {
       throw new Error('Cannot detect terminal!');
@@ -156,6 +161,7 @@ function init(callback) {
     });
 
     createTextBackground();
+    addWordsToScreen();
 
     term.moveTo.eraseLine.bgWhite.cyan(0, term.height, 'Type here and type fast!');
 

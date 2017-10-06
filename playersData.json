@@ -1,0 +1,19 @@
+{
+  "data":
+  [
+    {
+      "playerName": "Martin",
+      "currentScore": 200,
+      "bestScore": 205,
+      "currentNumHits": 0,
+      "bestNumHits": 0
+    },
+    {
+      "playerName": "Ilian",
+      "currentScore": 180,
+      "bestScore": 295,
+      "currentNumHits": 0,
+      "bestNumHits": 0
+    }
+  ]
+}
