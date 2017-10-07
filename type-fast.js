@@ -2,82 +2,81 @@ const fs = require('fs');
 
 const termkit = require('terminal-kit');
 
-const term = termkit.terminal;
-
-const screenBuffer = termkit.ScreenBuffer;
-
 const players = require('./playersData.json');
 
-const wordList = fs.readFileSync('wordList.txt').toString().split('\n');
+const term = termkit.terminal;
+const screenBuffer = termkit.ScreenBuffer;
 
+const wordList = fs.readFileSync('wordList.txt').toString().split('\n');
 const encouragement = ['Good!', 'Nice!', 'Doing great!', 'Awesome!', 'Keep it up!'];
 
-const wordsYPosition = [];
-
-const screenText = {};
+const wordsYPos = [];
+const screen = {};
 
 let viewport = {};
 
-let userInput = '';
+let playerInput = '';
+let screenWord = '';
 
-let tempWord = '';
+let currPlayerIndx = 0;
+let currScore = 0;
+let currHits = 0;
 
-let currentPlayerIndex = 0;
-
-function getPlayer(currentPlayerName) {
+function findIndexOf(currPlayer) {
   for (let j = 0; j < players.data.length; j += 1) {
     const values = Object.values(players.data[j]);
-    for (let i = 0; i < values.length; i += 1) {
-      if (values[i] === currentPlayerName) {
-        currentPlayerIndex = i;
+
+    for (let plName = 0; plName < values.length; plName += 1) {
+      if (values[plName] === currPlayer) {
+        currPlayerIndx = plName;
       }
     }
   }
 }
 
 function savePlayerStats() {
-  if (players.data[currentPlayerIndex].currentScore >
-      players.data[currentPlayerIndex].bestScore) {
-    players.data[currentPlayerIndex].bestScore = players.data[currentPlayerIndex].currentScore;
+  if (currScore > players.data[currPlayerIndx].bestScore) {
+    players.data[currPlayerIndx].bestScore = currScore;
   }
 
-  if (players.data[currentPlayerIndex].currentNumHits >
-      players.data[currentPlayerIndex].bestNumHits) {
-    players.data[currentPlayerIndex].bestNumHits = players.data[currentPlayerIndex].currentNumHits;
+  if (currHits > players.data[currPlayerIndx].bestNumHits) {
+    players.data[currPlayerIndx].bestNumHits = currHits;
   }
 
-  fs.writeFile('./playersData.json', JSON.stringify(players), null, 4);
+  fs.writeFile('./playersData.json', JSON.stringify(players), null, '\t');
 }
 
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - (min + 1))) + min;
 }
 
-function addWordsToScreen() {
-  let wordAtX;
-  let wordAtY;
+/* Put all of the words from the list on the right side of the screen
+so that they do not jump immediately on the screen after the game satrts */
+function putWordsOffScreen() {
+  let xPos;
+  let yPos;
 
-  for (let i = 0; i < wordList.length; i += 1) {
-    wordAtX = getRandomInt(250, 816);
-    wordAtY = Math.floor(Math.random() * screenText.background.height);
+  for (let word = 0; word < wordList.length; word += 1) {
+    xPos = getRandomInt(250, 816);
+    yPos = Math.floor(Math.random() * screen.text.height);
 
-    screenText.background.put({
-      x: wordAtX,
-      y: wordAtY,
-    }, wordList[i]);
+    screen.text.put({
+      x: xPos,
+      y: yPos,
+    }, wordList[word]);
 
-    wordsYPosition.push(wordAtY);
+    wordsYPos.push(yPos);
   }
 }
 
-function createTextBackground() {
-  screenText.background = screenBuffer.create({
+function createScreenText() {
+  screen.text = screenBuffer.create({
     width: viewport.width,
     height: viewport.height,
     noFill: true,
   });
 
-  screenText.background.fill({
+  screen.text.fill({
     attr: {
       color: 'white', bgDefaultColor: true,
     },
@@ -95,34 +94,53 @@ function terminate() {
   }, 100);
 }
 
-function checkForHit(playerWord) {
-  for (let j = 0; j < wordsYPosition.length; j += 1) {
-    for (let i = 0; i < viewport.width; i += 1) {
-      for (let z = 0; z < playerWord.length; z += 1) {
-        if (screenText.background.get({ x: i + z, y: j }) !== null &&
-            screenText.background.get({ x: i + z, y: j }) !== ' ') {
-          tempWord += screenText.background.get({ x: i + z, y: j }).char;
+function registerHit() {
+  currHits += 1;
+  currScore += 5;
+
+  term.nextLine(1).eraseLine();
+  term.nextLine(2).cyan(`${encouragement[getRandomInt(0, encouragement.length)]}`).eraseLineAfter();
+}
+
+function destroyMatchedWordAt(xp, yp) {
+  for (let w = 0; w < playerInput.length; w += 1) {
+    delete screen.text.get({ x: xp + w, y: yp });
+    screen.text.put({
+      x: xp + w,
+      y: yp,
+    }, ' ');
+  }
+}
+
+function searchScreenForMatch() {
+  for (let yp = 0; yp < wordsYPos.length; yp += 1) {
+    for (let xp = 0; xp < viewport.width; xp += 1) {
+      for (let w = 0; w < playerInput.length; w += 1) {
+        // Optimized variant of the match: if the current box is null and the
+        // box, that is the length of the searched word away, also empty, jump
+        // with the length of the searched word forwad. Otherwise do a normal
+        // shift to the right.
+        if (screen.text.get({ x: xp + w, y: yp }) === null &&
+            screen.text.get({ x: xp + playerInput.length, y: yp }) === null) {
+          xp += playerInput.length - 1;
+        } else if (screen.text.get({ x: xp + w, y: yp }) !== null) {
+          screenWord += screen.text.get({ x: xp + w, y: yp }).char;
         }
       }
 
-      if (playerWord === tempWord && playerWord.length === tempWord.length) {
-        players.data[currentPlayerIndex].currentNumHits += 1;
-        players.data[currentPlayerIndex].currentScore += 5;
-        term.nextLine(1).eraseLine();
-        term.nextLine(2).cyan(`${encouragement[getRandomInt(0, encouragement.length)]}`).eraseLineAfter();
-        userInput = '';
+      if (playerInput === screenWord && playerInput.length === screenWord.length) {
+        registerHit();
+        destroyMatchedWordAt(xp, yp);
+        playerInput = '';
 
-        for (let z = 0; z < playerWord.length; z += 1) {
-          delete screenText.background.get({ x: i + z, y: j });
-          screenText.background.put({
-            x: i + z,
-            y: j,
-          }, ' ');
-        }
+        // In order to break of the outter loop as well,
+        // make `yp` break the condition.
+        yp = wordsYPos.length;
+        // Break inner loop.
         break;
       }
 
-      tempWord = '';
+      screenWord = '';
     }
   }
 }
@@ -130,38 +148,39 @@ function checkForHit(playerWord) {
 function input(key) {
   switch (key) {
     case 'BACKSPACE':
-      term.nextLine(1).right(userInput.length - 1).cyan(' ');
-
-      if (userInput.length === 1) {
+      // Remove the last char from the screen.
+      term.nextLine(1).right(playerInput.length - 1).cyan(' ');
+      if (playerInput.length === 1) {
         term.left(2).cyan(' ');
       }
 
-      userInput = userInput.slice(0, userInput.length - 1);
+      // Clear the last char from the players word.
+      playerInput = playerInput.slice(0, playerInput.length - 1);
       break;
 
     case 'CTRL_C':
       savePlayerStats();
-
       terminate();
       break;
 
     case 'ENTER':
     case ' ':
-      if (userInput.length > 1) {
-        checkForHit(userInput);
+      // All of the words from the list are at least 5 chars long,
+      // this avoids premature checking.
+      if (playerInput.length > 4) {
+        searchScreenForMatch();
       }
       break;
 
     default:
-      userInput += key;
-
-      term.cyan(userInput);
+      playerInput += key;
+      term.cyan(playerInput);
       break;
   }
 }
 
 function init(callback) {
-  getPlayer('Martin');
+  findIndexOf('Martin');
 
   termkit.getDetectedTerminal((error) => {
     if (error) {
@@ -175,8 +194,8 @@ function init(callback) {
       y: 2,
     });
 
-    createTextBackground();
-    addWordsToScreen();
+    createScreenText();
+    putWordsOffScreen();
 
     term.moveTo.eraseLine.bgWhite.cyan(0, term.height, 'Type here and type fast!');
 
@@ -188,12 +207,12 @@ function init(callback) {
   });
 }
 
-function moveBackground() {
-  screenText.background.x -= 0.03;
+function moveScreenTextLeft() {
+  screen.text.x -= 0.05;
 }
 
 function draw() {
-  screenText.background.draw({
+  screen.text.draw({
     dst: viewport,
     tile: true,
   });
@@ -203,7 +222,7 @@ function draw() {
 
 function animate() {
   draw();
-  moveBackground();
+  moveScreenTextLeft();
   setTimeout(animate, 10);
 }
 
