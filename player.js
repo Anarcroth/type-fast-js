@@ -1,19 +1,39 @@
-function Player(playerObj) {
-  this.playerName = playerObj.playerName;
-  this.currentScore = playerObj.currentScore;
-  this.bestScore = playerObj.bestScore;
-  this.currentNumHits = playerObj.currentNumHits;
-  this.bestNumHits = playerObj.bestNumHits;
+const fs = require('fs');
 
-  this.get = () => this.bestScore;
+const playersInfoAtPath = './playersInfo.json';
+const players = require('./playersInfo.json');
 
-  this.setNewBestScore = (newBestScore) => {
-    this.bestScore = newBestScore;
-  };
+const currScore = 0;
+const currHits = 0;
+const currPlayerIndx = 0;
 
-  this.setnewBestHits = (newBestNumHits) => {
-    this.bestNumHits = newBestNumHits;
-  };
-}
+const findIndexOf = (currPlayer) => {
+  for (let plIndx = 0; plIndx < players.infoAt.length; plIndx += 1) {
+    const names = Object.values(players.infoAt[plIndx]);
 
-module.exports = Player;
+    for (let valName = 0; valName < names.length; valName += 1) {
+      if (names[valName] === currPlayer) {
+        this.currPlayerIndx = plIndx;
+        break;
+      }
+    }
+  }
+};
+
+const saveStats = () => {
+  if (this.currScore > players.infoAt[this.currPlayerIndx].bestScore) {
+    players.infoAt[this.currPlayerIndx].bestScore = this.currScore;
+  }
+
+  if (this.currHits > players.infoAt[this.currPlayerIndx].bestNumHits) {
+    players.infoAt[this.currPlayerIndx].bestNumHits = this.currHits;
+  }
+
+  fs.writeFile(playersInfoAtPath, JSON.stringify(players), null, '\t');
+};
+
+module.exports.currHits = currHits;
+module.exports.currScore = currScore;
+module.exports.findIndexOf = findIndexOf;
+module.exports.currPlayerIndx = currPlayerIndx;
+module.exports.saveStats = saveStats;

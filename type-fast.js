@@ -2,7 +2,7 @@ const fs = require('fs');
 
 const termkit = require('terminal-kit');
 
-const players = require('./playersData.json');
+const player = require('./player.js');
 
 const term = termkit.terminal;
 const screenBuffer = termkit.ScreenBuffer;
@@ -17,34 +17,6 @@ let viewport = {};
 
 let playerInput = '';
 let screenWord = '';
-
-let currPlayerIndx = 0;
-let currScore = 0;
-let currHits = 0;
-
-function findIndexOf(currPlayer) {
-  for (let j = 0; j < players.data.length; j += 1) {
-    const values = Object.values(players.data[j]);
-
-    for (let plName = 0; plName < values.length; plName += 1) {
-      if (values[plName] === currPlayer) {
-        currPlayerIndx = plName;
-      }
-    }
-  }
-}
-
-function savePlayerStats() {
-  if (currScore > players.data[currPlayerIndx].bestScore) {
-    players.data[currPlayerIndx].bestScore = currScore;
-  }
-
-  if (currHits > players.data[currPlayerIndx].bestNumHits) {
-    players.data[currPlayerIndx].bestNumHits = currHits;
-  }
-
-  fs.writeFile('./playersData.json', JSON.stringify(players), null, '\t');
-}
 
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - (min + 1))) + min;
@@ -95,8 +67,8 @@ function terminate() {
 }
 
 function registerHit() {
-  currHits += 1;
-  currScore += 5;
+  player.currHits += 1;
+  player.currScore += 5;
 
   term.nextLine(1).eraseLine();
   term.nextLine(2).cyan(`${encouragement[getRandomInt(0, encouragement.length)]}`).eraseLineAfter();
@@ -159,7 +131,7 @@ function input(key) {
       break;
 
     case 'CTRL_C':
-      savePlayerStats();
+      player.saveStats();
       terminate();
       break;
 
@@ -180,7 +152,7 @@ function input(key) {
 }
 
 function init(callback) {
-  findIndexOf('Martin');
+  player.findIndexOf('Ilian');
 
   termkit.getDetectedTerminal((error) => {
     if (error) {
