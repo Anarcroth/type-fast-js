@@ -15,7 +15,6 @@ const screen = {};
 
 let viewport = {};
 
-let playerInput = '';
 let screenWord = '';
 
 function getRandomInt(min, max) {
@@ -75,7 +74,7 @@ function registerHit() {
 }
 
 function destroyMatchedWordAt(xp, yp) {
-  for (let w = 0; w < playerInput.length; w += 1) {
+  for (let w = 0; w < player.input.length; w += 1) {
     delete screen.text.get({ x: xp + w, y: yp });
     screen.text.put({
       x: xp + w,
@@ -87,23 +86,23 @@ function destroyMatchedWordAt(xp, yp) {
 function searchScreenForMatch() {
   for (let yp = 0; yp < wordsYPos.length; yp += 1) {
     for (let xp = 0; xp < viewport.width; xp += 1) {
-      for (let w = 0; w < playerInput.length; w += 1) {
+      for (let w = 0; w < player.input.length; w += 1) {
         // Optimized variant of the match: if the current box is null and the
         // box, that is the length of the searched word away, also empty, jump
         // with the length of the searched word forwad. Otherwise do a normal
         // shift to the right.
         if (screen.text.get({ x: xp + w, y: yp }) === null &&
-            screen.text.get({ x: xp + playerInput.length, y: yp }) === null) {
-          xp += playerInput.length - 1;
+            screen.text.get({ x: xp + player.input.length, y: yp }) === null) {
+          xp += player.input.length - 1;
         } else if (screen.text.get({ x: xp + w, y: yp }) !== null) {
           screenWord += screen.text.get({ x: xp + w, y: yp }).char;
         }
       }
 
-      if (playerInput === screenWord && playerInput.length === screenWord.length) {
+      if (player.input === screenWord && player.input.length === screenWord.length) {
         registerHit();
         destroyMatchedWordAt(xp, yp);
-        playerInput = '';
+        player.input = '';
 
         // In order to break of the outter loop as well,
         // make `yp` break the condition.
@@ -121,13 +120,13 @@ function input(key) {
   switch (key) {
     case 'BACKSPACE':
       // Remove the last char from the screen.
-      term.nextLine(1).right(playerInput.length - 1).cyan(' ');
-      if (playerInput.length === 1) {
+      term.nextLine(1).right(player.input.length - 1).cyan(' ');
+      if (player.input.length === 1) {
         term.left(2).cyan(' ');
       }
 
       // Clear the last char from the players word.
-      playerInput = playerInput.slice(0, playerInput.length - 1);
+      player.input = player.input.slice(0, player.input.length - 1);
       break;
 
     case 'CTRL_C':
@@ -139,20 +138,20 @@ function input(key) {
     case ' ':
       // All of the words from the list are at least 5 chars long,
       // this avoids premature checking.
-      if (playerInput.length > 4) {
+      if (player.input.length > 4) {
         searchScreenForMatch();
       }
       break;
 
     default:
-      playerInput += key;
-      term.cyan(playerInput);
+      player.input += key;
+      term.cyan(player.input);
       break;
   }
 }
 
 function init(callback) {
-  player.findIndexOf('Ilian');
+  player.findIndexOf('Martin');
 
   termkit.getDetectedTerminal((error) => {
     if (error) {
