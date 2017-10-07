@@ -4,8 +4,6 @@ const termkit = require('terminal-kit');
 
 const player = require('./player.js');
 
-const mainmenu = require('./main-menu.js');
-
 const term = termkit.terminal;
 const screenBuffer = termkit.ScreenBuffer;
 
@@ -115,8 +113,11 @@ function searchScreenForMatch() {
 
       if (isAPerfectMatch()) {
         player.incrHitStats();
+
         regHitOnScreen();
+
         destroyMatchedWordAt(xp, yp);
+
         player.inpWord = '';
 
         yp = optimizeOutterLoop(yp);
@@ -167,10 +168,6 @@ function inpWord(key) {
 }
 
 function init(callback) {
-  // player.findIndexOf('Martin');
-  //
-  // mainmenu.initMainMenu();
-
   termkit.getDetectedTerminal((error) => {
     if (error) {
       throw new Error('Cannot detect terminal!');
