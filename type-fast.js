@@ -6,9 +6,7 @@ const term = termkit.terminal;
 
 const screenBuffer = termkit.ScreenBuffer;
 
-const Player = require('./player.js');
-
-const playersData = require('./playersData.json');
+const players = require('./playersData.json');
 
 const wordList = fs.readFileSync('wordList.txt').toString().split('\n');
 
@@ -18,23 +16,37 @@ const wordsYPosition = [];
 
 const screenText = {};
 
-let player1 = {};
-
 let viewport = {};
 
 let userInput = '';
 
 let tempWord = '';
 
-function loadPlayer(players, currentPlayerName) {
+let currentPlayerIndex = 0;
+
+function getPlayer(currentPlayerName) {
   for (let j = 0; j < players.data.length; j += 1) {
     const values = Object.values(players.data[j]);
     for (let i = 0; i < values.length; i += 1) {
       if (values[i] === currentPlayerName) {
-        player1 = new Player(players.data[i]);
+        currentPlayerIndex = i;
       }
     }
   }
+}
+
+function savePlayerStats() {
+  if (players.data[currentPlayerIndex].currentScore >
+      players.data[currentPlayerIndex].bestScore) {
+    players.data[currentPlayerIndex].bestScore = players.data[currentPlayerIndex].currentScore;
+  }
+
+  if (players.data[currentPlayerIndex].currentNumHits >
+      players.data[currentPlayerIndex].bestNumHits) {
+    players.data[currentPlayerIndex].bestNumHits = players.data[currentPlayerIndex].currentNumHits;
+  }
+
+  fs.writeFile('./playersData.json', JSON.stringify(players), null, 4);
 }
 
 function getRandomInt(min, max) {
@@ -94,8 +106,9 @@ function checkForHit(playerWord) {
       }
 
       if (playerWord === tempWord && playerWord.length === tempWord.length) {
+        players.data[currentPlayerIndex].currentNumHits += 1;
+        players.data[currentPlayerIndex].currentScore += 5;
         term.nextLine(1).eraseLine();
-        term.red(player1.get());
         term.nextLine(2).cyan(`${encouragement[getRandomInt(0, encouragement.length)]}`).eraseLineAfter();
         userInput = '';
 
@@ -127,6 +140,8 @@ function input(key) {
       break;
 
     case 'CTRL_C':
+      savePlayerStats();
+
       terminate();
       break;
 
@@ -146,7 +161,7 @@ function input(key) {
 }
 
 function init(callback) {
-  loadPlayer(playersData, 'Martin');
+  getPlayer('Martin');
 
   termkit.getDetectedTerminal((error) => {
     if (error) {
