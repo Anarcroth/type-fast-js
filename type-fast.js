@@ -15,7 +15,7 @@ const screen = {};
 
 let viewport = {};
 
-let screenWord = '';
+let searchedWord = '';
 
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - (min + 1))) + min;
@@ -65,68 +65,81 @@ function terminate() {
   }, 100);
 }
 
-function registerHit() {
-  player.currHits += 1;
-  player.currScore += 5;
-
+function regHitOnScreen() {
   term.nextLine(1).eraseLine();
   term.nextLine(2).cyan(`${encouragement[getRandomInt(0, encouragement.length)]}`).eraseLineAfter();
 }
 
 function destroyMatchedWordAt(xp, yp) {
-  for (let w = 0; w < player.input.length; w += 1) {
-    delete screen.text.get({ x: xp + w, y: yp });
+  for (let ch = 0; ch < player.inpWord.length; ch += 1) {
+    delete screen.text.get({ x: xp + ch, y: yp });
     screen.text.put({
-      x: xp + w,
+      x: xp + ch,
       y: yp,
     }, ' ');
   }
 }
 
+function optimizeOutterLoop(yp) {
+  // By splicing the index of the found Y position of the element, the
+  // number of iterrations is reduced each time a check for a amtch is made.
+  wordsYPos.splice(yp, 1);
+
+  // In order to break of the outter loop as well,
+  // make `yp` break its condition.
+  return wordsYPos.length;
+}
+
+function isAPerfectMatch() {
+  return player.inpWord === searchedWord && player.inpWord.length === searchedWord.length;
+}
+
 function searchScreenForMatch() {
   for (let yp = 0; yp < wordsYPos.length; yp += 1) {
     for (let xp = 0; xp < viewport.width; xp += 1) {
-      for (let w = 0; w < player.input.length; w += 1) {
+      for (let ch = 0; ch < player.inpWord.length; ch += 1) {
         // Optimized variant of the match: if the current box is null and the
         // box, that is the length of the searched word away, also empty, jump
         // with the length of the searched word forwad. Otherwise do a normal
         // shift to the right.
-        if (screen.text.get({ x: xp + w, y: yp }) === null &&
-            screen.text.get({ x: xp + player.input.length, y: yp }) === null) {
-          xp += player.input.length - 1;
-        } else if (screen.text.get({ x: xp + w, y: yp }) !== null) {
-          screenWord += screen.text.get({ x: xp + w, y: yp }).char;
+        if (screen.text.get({ x: xp + ch, y: yp }) === null &&
+            screen.text.get({ x: xp + player.inpWord.length, y: yp }) === null) {
+          xp += player.inpWord.length - 1;
+        } else {
+          searchedWord += screen.text.get({ x: xp + ch, y: yp }).char;
         }
       }
 
-      if (player.input === screenWord && player.input.length === screenWord.length) {
-        registerHit();
+      if (isAPerfectMatch()) {
+        player.incrHitStats();
+        regHitOnScreen();
         destroyMatchedWordAt(xp, yp);
-        player.input = '';
+        player.inpWord = '';
 
-        // In order to break of the outter loop as well,
-        // make `yp` break the condition.
-        yp = wordsYPos.length;
+        yp = optimizeOutterLoop(yp);
+
         // Break inner loop.
+        // After tat breaks outter lopp automatically.
         break;
       }
 
-      screenWord = '';
+      searchedWord = '';
     }
   }
 }
 
-function input(key) {
+function inpWord(key) {
   switch (key) {
     case 'BACKSPACE':
       // Remove the last char from the screen.
-      term.nextLine(1).right(player.input.length - 1).cyan(' ');
-      if (player.input.length === 1) {
+      term.nextLine(1).right(player.inpWord.length - 1).cyan(' ');
+
+      // Remove the last char at the first positon of the player inpWord string.
+      if (player.inpWord.length === 1) {
         term.left(2).cyan(' ');
       }
 
-      // Clear the last char from the players word.
-      player.input = player.input.slice(0, player.input.length - 1);
+      player.inpWord = player.inpWord.slice(0, player.inpWord.length - 1);
       break;
 
     case 'CTRL_C':
@@ -138,14 +151,14 @@ function input(key) {
     case ' ':
       // All of the words from the list are at least 5 chars long,
       // this avoids premature checking.
-      if (player.input.length > 4) {
+      if (player.inpWord.length > 4) {
         searchScreenForMatch();
       }
       break;
 
     default:
-      player.input += key;
-      term.cyan(player.input);
+      player.inpWord += key;
+      term.cyan(player.inpWord);
       break;
   }
 }
@@ -172,7 +185,7 @@ function init(callback) {
 
     term.hideCursor();
     term.grabInput();
-    term.on('key', input);
+    term.on('key', inpWord);
 
     callback();
   });

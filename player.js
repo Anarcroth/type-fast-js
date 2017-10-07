@@ -3,38 +3,46 @@ const fs = require('fs');
 const playersInfoAtPath = './playersInfo.json';
 const players = require('./playersInfo.json');
 
-const Player = {
+const inpWord = '';
 
-  input: '',
+const currScore = 0;
+const currHits = 0;
+const currPlayerIndx = 0;
 
-  currScore: 0,
-  currHits: 0,
-  currPlayerIndx: 0,
+const findIndexOf = (currPlayer) => {
+  for (let plIndx = 0; plIndx < players.infoAt.length; plIndx += 1) {
+    const names = Object.values(players.infoAt[plIndx]);
 
-  findIndexOf: (currPlayer) => {
-    for (let plIndx = 0; plIndx < players.infoAt.length; plIndx += 1) {
-      const names = Object.values(players.infoAt[plIndx]);
-
-      for (let valName = 0; valName < names.length; valName += 1) {
-        if (names[valName] === currPlayer) {
-          this.currPlayerIndx = plIndx;
-          break;
-        }
+    for (let valName = 0; valName < names.length; valName += 1) {
+      if (names[valName] === currPlayer) {
+        this.currPlayerIndx = plIndx;
+        break;
       }
     }
-  },
-
-  saveStats: () => {
-    if (this.currScore > players.infoAt[this.currPlayerIndx].bestScore) {
-      players.infoAt[this.currPlayerIndx].bestScore = this.currScore;
-    }
-
-    if (this.currHits > players.infoAt[this.currPlayerIndx].bestNumHits) {
-      players.infoAt[this.currPlayerIndx].bestNumHits = this.currHits;
-    }
-
-    fs.writeFile(playersInfoAtPath, JSON.stringify(players), null, '\t');
-  },
+  }
 };
 
-module.exports = Player;
+const saveStats = () => {
+  if (this.currScore > players.infoAt[this.currPlayerIndx].bestScore) {
+    players.infoAt[this.currPlayerIndx].bestScore = this.currScore;
+  }
+
+  if (this.currHits > players.infoAt[this.currPlayerIndx].bestNumHits) {
+    players.infoAt[this.currPlayerIndx].bestNumHits = this.currHits;
+  }
+
+  fs.writeFile(playersInfoAtPath, JSON.stringify(players), null, '\t');
+};
+
+const incrHitStats = () => {
+  this.currHits += 1;
+  this.currScore += 5;
+};
+
+module.exports.inpWord = inpWord;
+module.exports.currHits = currHits;
+module.exports.saveStats = saveStats;
+module.exports.currScore = currScore;
+module.exports.incrHitStats = incrHitStats;
+module.exports.findIndexOf = findIndexOf;
+module.exports.currPlayerIndx = currPlayerIndx;
