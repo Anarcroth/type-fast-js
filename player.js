@@ -4,7 +4,7 @@ const playersInfoAtPath = './playersInfo.json';
 const players = require('./playersInfo.json');
 
 const inpWord = '';
-
+const username = '';
 const currScore = 0;
 const currHits = 0;
 const currPlayerIndx = 0;
@@ -39,10 +39,16 @@ const incrHitStats = () => {
   this.currScore += 5;
 };
 
+const setUsername = (usern) => {
+  this.username = usern;
+};
+
 module.exports.inpWord = inpWord;
 module.exports.currHits = currHits;
+module.exports.username = username;
 module.exports.saveStats = saveStats;
 module.exports.currScore = currScore;
-module.exports.incrHitStats = incrHitStats;
+module.exports.setUsername = setUsername;
 module.exports.findIndexOf = findIndexOf;
+module.exports.incrHitStats = incrHitStats;
 module.exports.currPlayerIndx = currPlayerIndx;

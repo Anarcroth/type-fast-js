@@ -4,6 +4,8 @@ const termkit = require('terminal-kit');
 
 const player = require('./player.js');
 
+const mainmenu = require('./main-menu.js');
+
 const term = termkit.terminal;
 const screenBuffer = termkit.ScreenBuffer;
 
@@ -28,7 +30,7 @@ function putWordsOffScreen() {
   let yPos;
 
   for (let word = 0; word < wordList.length; word += 1) {
-    xPos = getRandomInt(250, 816);
+    xPos = getRandomInt(220, 816);
     yPos = Math.floor(Math.random() * screen.text.height);
 
     screen.text.put({
@@ -95,7 +97,8 @@ function isAPerfectMatch() {
 }
 
 function searchScreenForMatch() {
-  for (let yp = 0; yp < wordsYPos.length; yp += 1) {
+  for (let yp = screen.text.x > 0 ? screen.text.x - 10 : 0;
+    yp < wordsYPos.length; yp += 1) {
     for (let xp = 0; xp < viewport.width; xp += 1) {
       for (let ch = 0; ch < player.inpWord.length; ch += 1) {
         // Optimized variant of the match: if the current box is null and the
@@ -164,7 +167,9 @@ function inpWord(key) {
 }
 
 function init(callback) {
-  player.findIndexOf('Martin');
+  // player.findIndexOf('Martin');
+  //
+  // mainmenu.initMainMenu();
 
   termkit.getDetectedTerminal((error) => {
     if (error) {
@@ -180,8 +185,6 @@ function init(callback) {
 
     createScreenText();
     putWordsOffScreen();
-
-    term.moveTo.eraseLine.bgWhite.cyan(0, term.height, 'Type here and type fast!');
 
     term.hideCursor();
     term.grabInput();
