@@ -1,7 +1,7 @@
 const fs = require('fs');
-const termkit = require('terminal-kit');
 const player = require('./player.js');
-const options = require('./options');
+const termkit = require('terminal-kit');
+const cloptions = require('./cl-options.js');
 
 const term = termkit.terminal;
 const screenBuffer = termkit.ScreenBuffer;
@@ -146,7 +146,8 @@ function inpWord(key) {
       break;
 
     case 'CTRL_C':
-      player.saveStats();
+      player.updateStats();
+      player.save();
       terminate();
       break;
 
@@ -208,8 +209,6 @@ function animate() {
   moveScreenTextLeft();
   setTimeout(animate, 10);
 }
-
-options.serializeNewPlayer();
 
 init(() => {
   animate();
