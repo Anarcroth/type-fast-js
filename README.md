@@ -31,13 +31,17 @@ The command that the game takes in:
 
 ## How to install
 
-Clone the Git repo.
+Clone the Git [repository](https://github.com/Anarcroth/type-fast-js.git).
+
 Go to the cloned directory.
-Type:
+
+Type into the command line:
 
 	npm --install
-Then cd into the `/src` directory.
-Type:
+	
+To run the game, move to the `/src` directory.
+
+Type into the command line:
 
 	node type-fast.js p [optional name]
 
@@ -46,6 +50,6 @@ Type:
 
 ## Screenshots
 
-![sc1](/home/mdn/Desktop/sc1.png  "sc1")
+![scr1](\./screenshots/screenshot1.png  "scr1")
 
-![sc2](/home/mdn/Desktop/sc2.png  "sc2")
+![scr2](./screenshots/screenshot2.png  "scr2")
