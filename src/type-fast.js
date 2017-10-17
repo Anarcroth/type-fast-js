@@ -22,18 +22,18 @@ function terminate() {
 
 function regHitOnScreen() {
   term.nextLine(1).eraseLine();
-  term.nextLine(2).cyan(`${encouragement[screen.getRandomInt(0, encouragement.length)]}`).eraseLineAfter();
+  term.nextLine(1).brightMagenta(`${encouragement[screen.getRandomInt(0, encouragement.length)]}`).eraseLineAfter();
 }
 
 function inpWord(key) {
   switch (key) {
     case 'BACKSPACE':
       // Remove the last char from the screen.
-      term.nextLine(1).right(player.inpWord.length - 1).cyan(' ');
+      term.nextLine(1).right(player.inpWord.length - 1).brightBlue(' ');
 
       // Remove the last char at the first positon of the player inpWord string.
       if (player.inpWord.length === 1) {
-        term.left(2).cyan(' ');
+        term.left(2).brightBlue(' ');
       }
 
       player.inpWord = player.inpWord.slice(0, player.inpWord.length - 1);
@@ -56,7 +56,8 @@ function inpWord(key) {
 
     default:
       player.inpWord += key;
-      term.cyan(player.inpWord);
+      term.brightBlue(player.inpWord);
+
       break;
   }
 }
@@ -85,13 +86,14 @@ function init(callback) {
   });
 }
 
-function draw() {
+function drawFullScreen() {
+  term.moveTo.eraseLine.brightCyan(0, term.height, `Player score: ${player.currScore},    Current hits: ${player.currHits}`);
   screen.draw(viewport);
   viewport.draw();
 }
 
 function animate() {
-  draw();
+  drawFullScreen();
   screen.moveScreenTextLeft();
   setTimeout(animate, 10);
 }
