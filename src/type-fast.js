@@ -86,7 +86,8 @@ function init(callback) {
 }
 
 function drawFullScreen() {
-  term.moveTo.eraseLine.brightCyan(0, term.height, `${player.name} -> Current Score: ${player.currScore},    Current Hits: ${player.currHits},    Best Score: ${player.bestScore},    Best Number of Hits: ${player.bestNumHits}`);
+  term.moveTo.eraseLine.brightCyan(0, term.height - 1, `${player.name} -> Current Score: ${player.currScore},    Current Hits: ${player.currHits},    Best Score: ${player.bestScore},    Best Number of Hits: ${player.bestNumHits}`);
+  term.moveTo.eraseLine.red(0, term.height, 'Press Ctrl + C to Quit the game at anytime!');
   screen.draw(viewport);
   viewport.draw();
 }
