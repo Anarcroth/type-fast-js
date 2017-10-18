@@ -80,7 +80,7 @@ const ScreenText = {
         }
 
         if (this.isAPerfectMatch()) {
-          player.incrHitStats();
+          player.updateStats();
 
           this.destroyMatchedWordAt(xp, yp);
 

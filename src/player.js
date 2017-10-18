@@ -4,18 +4,25 @@ const players = require('./playersInfo.json');
 const playersInfoAtPath = './playersInfo.json';
 
 const Player = {
+  name: '',
   inpWord: '',
-  currScore: 0,
   currHits: 0,
+  currScore: 0,
+  bestScore: 0,
+  bestNumHits: 0,
   currPlayerIndx: 0,
 
-  foundIndexOf(currPlayer) {
+  loadedPlayer(currPlayer) {
     for (let plIndx = 0; plIndx < players.infoAt.length; plIndx += 1) {
       const names = Object.values(players.infoAt[plIndx]);
 
       for (let valName = 0; valName < names.length; valName += 1) {
         if (names[valName] === currPlayer) {
           this.currPlayerIndx = plIndx;
+          this.name = players.infoAt[plIndx].playerName;
+          this.bestScore = players.infoAt[plIndx].bestScore;
+          this.bestNumHits = players.infoAt[plIndx].bestNumHits;
+
           return true;
         }
       }
@@ -24,6 +31,8 @@ const Player = {
   },
 
   save() {
+    players.infoAt[this.currPlayerIndx].bestScore = this.bestScore;
+    players.infoAt[this.currPlayerIndx].bestNumHits = this.bestNumHits;
     fs.writeFile(playersInfoAtPath, JSON.stringify(players), null, '\t');
   },
 
@@ -41,18 +50,16 @@ const Player = {
   },
 
   updateStats() {
-    if (this.currScore > players.infoAt[this.currPlayerIndx].bestScore) {
-      players.infoAt[this.currPlayerIndx].bestScore = this.currScore;
-    }
-
-    if (this.currHits > players.infoAt[this.currPlayerIndx].bestNumHits) {
-      players.infoAt[this.currPlayerIndx].bestNumHits = this.currHits;
-    }
-  },
-
-  incrHitStats() {
     this.currHits += 1;
     this.currScore += 5;
+
+    if (this.currScore > this.bestScore) {
+      this.bestScore = this.currScore;
+    }
+
+    if (this.currHits > this.bestNumHits) {
+      this.bestNumHits = this.currHits;
+    }
   },
 };
 

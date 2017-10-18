@@ -40,7 +40,6 @@ function inpWord(key) {
       break;
 
     case 'CTRL_C':
-      player.updateStats();
       player.save();
       terminate();
       break;
@@ -87,7 +86,7 @@ function init(callback) {
 }
 
 function drawFullScreen() {
-  term.moveTo.eraseLine.brightCyan(0, term.height, `Player score: ${player.currScore},    Current hits: ${player.currHits}`);
+  term.moveTo.eraseLine.brightCyan(0, term.height, `${player.name} -> Current Score: ${player.currScore},    Current Hits: ${player.currHits},    Best Score: ${player.bestScore},    Best Number of Hits: ${player.bestNumHits}`);
   screen.draw(viewport);
   viewport.draw();
 }

@@ -10,7 +10,7 @@ program
   .alias('p')
   .description('Enter your player name, then play the game.')
   .action((plr) => {
-    if (!player.foundIndexOf(plr)) {
+    if (!player.loadedPlayer(plr)) {
       player.addNew(plr);
     }
   });
