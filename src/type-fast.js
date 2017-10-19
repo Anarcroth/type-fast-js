@@ -6,10 +6,13 @@ const cloptions = require('./cl-options.js');
 const term = termkit.terminal;
 
 const encouragement = ['Good!', 'Nice!', 'Doing great!', 'Awesome!', 'Keep it up!'];
-
-let timeCounter = 0;
+const errorMessage = ['Oops!', 'Try again!', 'Lol...', 'Not quite...', 'Mistaaaaaaaaaaaaaake'];
 
 let viewport = {};
+
+function netWPM() {
+  return ((player.typedEntities / 5) - player.typedErrors) / (player.playTime / 60000);
+}
 
 function terminate() {
   term.hideCursor(false);
@@ -18,7 +21,7 @@ function terminate() {
   setTimeout(() => {
     term.moveTo(1, term.height, '\n\n');
     term.clear();
-    term.moveTo.eraseLine.brightCyan(0, term.height - 2, `Game stats -> ${player.name} :: Score: ${player.currScore},    Hits: ${player.currHits},    Best Score: ${player.bestScore},    Best Number of Hits: ${player.bestNumHits}\n`);
+    term.moveTo.eraseLine.brightCyan(0, term.height - 2, `Game stats -> ${player.name} :: Score: ${player.currScore},    Hits: ${player.currHits},    Best Score: ${player.bestScore},    Best Number of Hits: ${player.bestNumHits},    WMP: ${netWPM().toFixed(2)}\n`);
     process.exit();
   }, 100);
 }
@@ -26,6 +29,11 @@ function terminate() {
 function regHitOnScreen() {
   term.nextLine(1).eraseLine();
   term.nextLine(1).brightMagenta(`${encouragement[screen.getRandomInt(0, encouragement.length)]}`).eraseLineAfter();
+}
+
+function regMissOnScreen() {
+  term.nextLine(1).eraseLine();
+  term.nextLine(1).brightMagenta(`${errorMessage[screen.getRandomInt(0, errorMessage.length)]}`).eraseLineAfter();
 }
 
 function inpWord(key) {
@@ -53,11 +61,16 @@ function inpWord(key) {
       // this avoids premature checking.
       if (player.inpWord.length > 4 && screen.foundMatchOnScreen(viewport)) {
         regHitOnScreen();
+      } else {
+        player.typedErrors += 1;
+        player.inpWord = '';
+        regMissOnScreen();
       }
       break;
 
     default:
       player.inpWord += key;
+      player.typedEntities += 1;
       term.brightBlue(player.inpWord);
 
       break;
@@ -91,20 +104,22 @@ function init(callback) {
 }
 
 function drawFullScreen() {
-  timeCounter += 10;
-  term.moveTo.eraseLine.brightCyan(0, term.height - 1, `${player.name} -> Current Score: ${player.currScore},    Current Hits: ${player.currHits},    Best Score: ${player.bestScore},    Best Number of Hits: ${player.bestNumHits},    Time: ${timeCounter / 1000}`);
+  player.playTime += 10;
+  term.moveTo.eraseLine.brightCyan(0, term.height - 1, `${player.name} -> Current Score: ${player.currScore},    Current Hits: ${player.currHits},    Best Score: ${player.bestScore},    Best Number of Hits: ${player.bestNumHits},    Time: ${player.playTime / 1000}`);
   term.moveTo.eraseLine.red(0, term.height, 'Press Ctrl + C to Quit the game at anytime!');
   screen.draw(viewport);
   viewport.draw();
-  if (timeCounter > 60000) {
-    terminate();
-  }
 }
 
 function animate() {
   drawFullScreen();
   screen.moveScreenTextLeft();
   setTimeout(animate, 10);
+
+  if (player.playTime > 60000) {
+    player.save();
+    terminate();
+  }
 }
 
 init(() => {

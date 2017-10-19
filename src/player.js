@@ -6,10 +6,13 @@ const playersInfoAtPath = './playersInfo.json';
 const Player = {
   name: '',
   inpWord: '',
+  playTime: 0,
   currHits: 0,
   currScore: 0,
   bestScore: 0,
   bestNumHits: 0,
+  typedErrors: 0,
+  typedEntities: 0,
   currPlayerIndx: 0,
 
   loadedPlayer(currPlayer) {
