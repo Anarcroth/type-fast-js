@@ -1,1 +1,1 @@
-// TODO calculate the speed of typing
+// TODO calculate the speed of typingjavascript timer

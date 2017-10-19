@@ -7,6 +7,8 @@ const term = termkit.terminal;
 
 const encouragement = ['Good!', 'Nice!', 'Doing great!', 'Awesome!', 'Keep it up!'];
 
+let timeCounter = 0;
+
 let viewport = {};
 
 function terminate() {
@@ -16,6 +18,7 @@ function terminate() {
   setTimeout(() => {
     term.moveTo(1, term.height, '\n\n');
     term.clear();
+    term.moveTo.eraseLine.brightCyan(0, term.height - 2, `Game stats -> ${player.name} :: Score: ${player.currScore},    Hits: ${player.currHits},    Best Score: ${player.bestScore},    Best Number of Hits: ${player.bestNumHits}\n`);
     process.exit();
   }, 100);
 }
@@ -77,6 +80,8 @@ function init(callback) {
     screen.createScreenText(viewport);
     screen.putWordsOffScreen();
 
+    // Remove any text from the terminal before starting the game.
+    term.clear();
     term.hideCursor();
     term.grabInput();
     term.on('key', inpWord);
@@ -86,10 +91,14 @@ function init(callback) {
 }
 
 function drawFullScreen() {
-  term.moveTo.eraseLine.brightCyan(0, term.height - 1, `${player.name} -> Current Score: ${player.currScore},    Current Hits: ${player.currHits},    Best Score: ${player.bestScore},    Best Number of Hits: ${player.bestNumHits}`);
+  timeCounter += 10;
+  term.moveTo.eraseLine.brightCyan(0, term.height - 1, `${player.name} -> Current Score: ${player.currScore},    Current Hits: ${player.currHits},    Best Score: ${player.bestScore},    Best Number of Hits: ${player.bestNumHits},    Time: ${timeCounter / 1000}`);
   term.moveTo.eraseLine.red(0, term.height, 'Press Ctrl + C to Quit the game at anytime!');
   screen.draw(viewport);
   viewport.draw();
+  if (timeCounter > 60000) {
+    terminate();
+  }
 }
 
 function animate() {
