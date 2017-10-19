@@ -21,7 +21,7 @@ function terminate() {
   setTimeout(() => {
     term.moveTo(1, term.height, '\n\n');
     term.clear();
-    term.moveTo.eraseLine.brightCyan(0, term.height - 2, `Game stats -> ${player.name} :: Score: ${player.currScore},    Hits: ${player.currHits},    Best Score: ${player.bestScore},    Best Number of Hits: ${player.bestNumHits},    WMP: ${netWPM().toFixed(2)}\n`);
+    term.moveTo.eraseLine.brightCyan(0, term.height - 2, `Game stats -> ${player.name} :: Score: ${player.currScore},    Hits: ${player.currHits},    Best Score: ${player.bestScore},    Best Number of Hits: ${player.bestNumHits},    WMP: ${player.netWPM}\n`);
     process.exit();
   }, 100);
 }
@@ -51,6 +51,7 @@ function inpWord(key) {
       break;
 
     case 'CTRL_C':
+      player.netWPM = netWPM().toFixed(2);
       player.save();
       terminate();
       break;

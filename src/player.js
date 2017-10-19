@@ -6,6 +6,7 @@ const playersInfoAtPath = './playersInfo.json';
 const Player = {
   name: '',
   inpWord: '',
+  netWPM: 0,
   playTime: 0,
   currHits: 0,
   currScore: 0,
@@ -34,6 +35,7 @@ const Player = {
   },
 
   save() {
+    players.infoAt[this.currPlayerIndx].netWPM = this.netWPM;
     players.infoAt[this.currPlayerIndx].bestScore = this.bestScore;
     players.infoAt[this.currPlayerIndx].bestNumHits = this.bestNumHits;
     fs.writeFile(playersInfoAtPath, JSON.stringify(players), null, '\t');
