@@ -5,7 +5,7 @@ This is a simulation of the old DOS Type Fast games in JS.
 
 ## How the game works
 
-When running the game, a player can either enter a name for his `player name` or just play the game.
+When running the game, a player can either enter a name for his `player name` or just play the game. The game has a duration of 60 seconds. If the player wants, he can cut the game short. At the end of each round, the player can see his WPM (Words Per Minute) score.
 
 The command that the game takes in:
 
@@ -38,7 +38,7 @@ Go to the cloned directory.
 Type into the command line:
 
 	npm --install
-	
+
 To run the game, move to the `/src` directory.
 
 Type into the command line:
@@ -50,6 +50,8 @@ Type into the command line:
 
 ## Screenshots
 
-![scr1](\./screenshots/screenshot1.png  "scr1")
+![scr1](./screenshots/scr1.png  "scr1")
 
-![scr2](./screenshots/screenshot2.png  "scr2")
+![scr2](./screenshots/scr2.png  "scr2")
+
+![scr3](./screenshots/scr3.png "scr3")
