@@ -9,7 +9,7 @@
     "commander": "^2.11.0",
     "inquirer": "^3.3.0",
     "json-update": "^3.0.0",
-    "terminal-kit": "^1.13.11",
+    "terminal-kit": "^1.49.4",
     "yargs": "^9.0.1"
   },
   "devDependencies": {
